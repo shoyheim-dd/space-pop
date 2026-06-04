@@ -103,11 +103,53 @@ export class Enemy {
         break;
 
       case 'straw':
-        // Striped straw
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-        ctx.fillStyle = '#fff';
-        for (let sy = -this.height / 2; sy < this.height / 2; sy += 8) {
-          ctx.fillRect(-this.width / 2, sy, this.width, 4);
+        // 3D striped straw (cylindrical shading)
+        {
+          const sx = -this.width / 2;
+          const sy = -this.height / 2;
+
+          // Base tube gradient: bright on left, darker on right
+          const tubeGrad = ctx.createLinearGradient(sx, 0, sx + this.width, 0);
+          tubeGrad.addColorStop(0, '#ff8f8f');
+          tubeGrad.addColorStop(0.28, '#ff6b6b');
+          tubeGrad.addColorStop(0.75, '#e25252');
+          tubeGrad.addColorStop(1, '#b53f3f');
+          ctx.fillStyle = tubeGrad;
+          ctx.fillRect(sx, sy, this.width, this.height);
+
+          // Stripe bands with a subtle vertical gradient for depth
+          for (let yBand = sy; yBand < sy + this.height; yBand += 8) {
+            const stripeGrad = ctx.createLinearGradient(0, yBand, 0, yBand + 4);
+            stripeGrad.addColorStop(0, 'rgba(255,255,255,0.92)');
+            stripeGrad.addColorStop(1, 'rgba(235,235,235,0.88)');
+            ctx.fillStyle = stripeGrad;
+            ctx.fillRect(sx, yBand, this.width, 4);
+          }
+
+          // Main specular highlight along left side
+          ctx.fillStyle = 'rgba(255,255,255,0.3)';
+          ctx.fillRect(sx + this.width * 0.16, sy, Math.max(1, this.width * 0.16), this.height);
+
+          // Slim secondary highlight for a glassy/plastic feel
+          ctx.fillStyle = 'rgba(255,255,255,0.16)';
+          ctx.fillRect(sx + this.width * 0.36, sy, 1, this.height);
+
+          // Right edge shadow to reinforce roundness
+          const edgeShadow = ctx.createLinearGradient(sx + this.width * 0.72, 0, sx + this.width, 0);
+          edgeShadow.addColorStop(0, 'rgba(0,0,0,0)');
+          edgeShadow.addColorStop(1, 'rgba(0,0,0,0.24)');
+          ctx.fillStyle = edgeShadow;
+          ctx.fillRect(sx, sy, this.width, this.height);
+
+          // End caps hint at tube thickness
+          ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(sx + 0.5, sy + 0.5);
+          ctx.lineTo(sx + this.width - 0.5, sy + 0.5);
+          ctx.moveTo(sx + 0.5, sy + this.height - 0.5);
+          ctx.lineTo(sx + this.width - 0.5, sy + this.height - 0.5);
+          ctx.stroke();
         }
         break;
 

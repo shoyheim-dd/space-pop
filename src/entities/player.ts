@@ -122,7 +122,7 @@ export class Player {
     bodyGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
     bodyGrad.addColorStop(0.16, color);
     bodyGrad.addColorStop(0.72, color);
-    bodyGrad.addColorStop(1, 'rgba(0,0,0,0.28)');
+    bodyGrad.addColorStop(1, 'rgba(0,0,0,0.18)');
     ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     // Start at bottom-left of base
@@ -162,7 +162,7 @@ export class Player {
     ctx.fill();
 
     // Right-side glass shading for a rounded 3D feel
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.beginPath();
     ctx.moveTo(bw * 0.14, -bh * 0.44);
     ctx.quadraticCurveTo(bw * 0.36, -bh * 0.2, bw * 0.4, bh * 0.1);
