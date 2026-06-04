@@ -1,5 +1,5 @@
 import { Enemy, EnemyType } from '../entities/enemy';
-import { CANVAS_WIDTH } from '../utils/constants';
+import { CANVAS_WIDTH, BottleType } from '../utils/constants';
 import { vec2 } from '../utils/math';
 
 interface WaveDef {
@@ -40,15 +40,16 @@ export class WaveSystem {
   private dropDistance = 20;
   private edgePadding = 30;
 
-  spawnWave(waveIndex: number): void {
+  spawnWave(waveIndex: number, playerType: BottleType = 'cola'): void {
     this.currentWave = waveIndex;
     this.enemies = [];
     this.waveComplete = false;
     this.waveDirection = 1;
 
-    const def = waveIndex < WAVE_DEFS.length
+    const baseDef = waveIndex < WAVE_DEFS.length
       ? WAVE_DEFS[waveIndex]
       : this.generateEndlessWave(waveIndex);
+    const def = this.applyPlayerTheme(baseDef, playerType);
 
     this.waveSpeed = def.speed;
 
@@ -77,6 +78,46 @@ export class WaveSystem {
       });
     }
     return { rows, speed: 40 + waveIndex * 3 };
+  }
+
+  private applyPlayerTheme(def: WaveDef, playerType: BottleType): WaveDef {
+    if (playerType === 'chipBag') {
+      return {
+        ...def,
+        rows: def.rows.map(row => ({ type: 'water', count: row.count })),
+      };
+    }
+    if (playerType === 'candyCup') {
+      const vegTypes: EnemyType[] = ['carrot', 'broccoli', 'tomato'];
+      return {
+        ...def,
+        rows: def.rows.map(row => ({
+          type: vegTypes[Math.floor(Math.random() * vegTypes.length)],
+          count: row.count,
+        })),
+      };
+    }
+    if (playerType === 'bmwCar') {
+      const alienTypes: EnemyType[] = ['alien1', 'alien2', 'alien3'];
+      return {
+        ...def,
+        rows: def.rows.map(row => ({
+          type: alienTypes[Math.floor(Math.random() * alienTypes.length)],
+          count: row.count,
+        })),
+      };
+    }
+    if (playerType === 'tree') {
+      const gasTypes: EnemyType[] = ['smog1', 'smog2', 'smog3'];
+      return {
+        ...def,
+        rows: def.rows.map(row => ({
+          type: gasTypes[Math.floor(Math.random() * gasTypes.length)],
+          count: row.count,
+        })),
+      };
+    }
+    return def;
   }
 
   update(dt: number): void {

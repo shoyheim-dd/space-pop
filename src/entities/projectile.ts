@@ -1,7 +1,7 @@
 import { Vec2, vec2, normalize, sub, scale, add, distance } from '../utils/math';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../utils/constants';
 
-export type ProjectileType = 'cap' | 'fizz' | 'bubble' | 'foam' | 'enemy';
+export type ProjectileType = 'cap' | 'fizz' | 'bubble' | 'foam' | 'candy' | 'chip' | 'water' | 'leaf' | 'bensin' | 'enemy';
 
 export class Projectile {
   pos: Vec2;
@@ -35,6 +35,26 @@ export class Projectile {
         break;
       case 'foam':
         this.radius = 10;
+        this.damage = 2;
+        break;
+      case 'candy':
+        this.radius = 6;
+        this.damage = 1;
+        break;
+      case 'chip':
+        this.radius = 8;
+        this.damage = 1;
+        break;
+      case 'leaf':
+        this.radius = 7;
+        this.damage = 1;
+        break;
+      case 'water':
+        this.radius = 8;
+        this.damage = 1;
+        break;
+      case 'bensin':
+        this.radius = 9;
         this.damage = 2;
         break;
       case 'enemy':
@@ -119,6 +139,131 @@ export class Projectile {
           ctx.fill();
         }
         break;
+
+      case 'candy': {
+        // Colorful candy pieces
+        const candyColors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF92B2', '#B491FF'];
+        const candyColor = candyColors[Math.floor(this.age * 5) % candyColors.length];
+        ctx.fillStyle = candyColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        // Shine on candy
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.4, -this.radius * 0.4, this.radius * 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'chip': {
+        // Stick chip projectile
+        const chipWidth = this.radius * 1.1;
+        const chipHeight = this.radius * 3.2;
+        ctx.fillStyle = '#d8ac57';
+        ctx.beginPath();
+        ctx.moveTo(-chipWidth / 2, -chipHeight / 2 + 2);
+        ctx.lineTo(chipWidth / 2, -chipHeight / 2 + 2);
+        ctx.lineTo(chipWidth / 2, chipHeight / 2 - 2);
+        ctx.quadraticCurveTo(chipWidth / 2, chipHeight / 2, chipWidth / 2 - 2, chipHeight / 2);
+        ctx.lineTo(-chipWidth / 2 + 2, chipHeight / 2);
+        ctx.quadraticCurveTo(-chipWidth / 2, chipHeight / 2, -chipWidth / 2, chipHeight / 2 - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Seasoning dots
+        ctx.fillStyle = '#c19237';
+        for (let i = -2; i <= 2; i++) {
+          ctx.beginPath();
+          ctx.arc(i * 2.5, -chipHeight / 6 + 1, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(i * 2.5, chipHeight / 6 + 2, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Highlight stripe
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-chipWidth / 2 + 1, -chipHeight / 2 + 4);
+        ctx.lineTo(chipWidth / 2 - 1, -chipHeight / 2 + 4);
+        ctx.stroke();
+        break;
+      }
+
+      case 'leaf': {
+        ctx.fillStyle = '#4f9c3a';
+        ctx.strokeStyle = '#2f6d24';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(0, -this.radius);
+        ctx.bezierCurveTo(this.radius * 1.4, -this.radius * 0.7, this.radius * 1.1, this.radius * 0.6, 0, this.radius);
+        ctx.bezierCurveTo(-this.radius * 1.1, this.radius * 0.6, -this.radius * 1.4, -this.radius * 0.7, 0, -this.radius);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#27601e';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -this.radius);
+        ctx.lineTo(0, this.radius);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.radius * 0.7, -this.radius * 0.2);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-this.radius * 0.7, -this.radius * 0.2);
+        ctx.stroke();
+        break;
+      }
+
+      case 'water': {
+        ctx.fillStyle = 'rgba(85, 175, 255, 0.9)';
+        ctx.strokeStyle = 'rgba(235, 250, 255, 0.7)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -this.radius);
+        ctx.bezierCurveTo(this.radius * 0.8, -this.radius * 0.6, this.radius * 0.6, this.radius * 0.4, 0, this.radius);
+        ctx.bezierCurveTo(-this.radius * 0.6, this.radius * 0.4, -this.radius * 0.8, -this.radius * 0.6, 0, -this.radius);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.2, -this.radius * 0.1, this.radius * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+
+      case 'bensin': {
+        // Black fuel drop projectile
+        const dropHeight = this.radius * 2.4;
+        const dropWidth = this.radius * 1.2;
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.moveTo(0, -dropHeight / 2);
+        ctx.bezierCurveTo(dropWidth / 2, -dropHeight / 2 + 6, dropWidth / 2, dropHeight / 4, 0, dropHeight / 2);
+        ctx.bezierCurveTo(-dropWidth / 2, dropHeight / 4, -dropWidth / 2, -dropHeight / 2 + 6, 0, -dropHeight / 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Subtle shine
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.beginPath();
+        ctx.ellipse(-this.radius * 0.2, -dropHeight * 0.15, this.radius * 0.35, this.radius * 0.16, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Light smoky trail
+        const glow = ctx.createRadialGradient(0, 0, this.radius * 0.2, 0, 0, this.radius * 2.4);
+        glow.addColorStop(0, 'rgba(60, 60, 60, 0.45)');
+        glow.addColorStop(1, 'rgba(30, 30, 30, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
 
       case 'enemy': {
         // Glowing mini-star

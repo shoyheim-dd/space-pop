@@ -1,7 +1,7 @@
 import { Vec2 } from '../utils/math';
-import { CANVAS_HEIGHT, POWERUP_SHIELD_DURATION, POWERUP_DOUBLE_CARB_DURATION, POWERUP_FLAVOR_MIX_DURATION } from '../utils/constants';
+import { CANVAS_HEIGHT } from '../utils/constants';
 
-export type PowerUpType = 'shakeUp' | 'freshCap' | 'doubleCarb' | 'flavorMix' | 'extraLife';
+export type PowerUpType = 'doubleCharacter' | 'doubleAmmo' | 'extraLife';
 
 interface PowerUpDef {
   label: string;
@@ -10,14 +10,12 @@ interface PowerUpDef {
 }
 
 const POWERUP_DEFS: Record<PowerUpType, PowerUpDef> = {
-  shakeUp:    { label: 'Shake-Up',           icon: '🫧', color: '#00e5ff' },
-  freshCap:   { label: 'Fresh Cap',          icon: '🧢', color: '#4fc3f7' },
-  doubleCarb: { label: 'Double Carbonation', icon: '⚡', color: '#ffeb3b' },
-  flavorMix:  { label: 'Flavor Mix',         icon: '🌈', color: '#e040fb' },
-  extraLife:  { label: 'Extra Life',         icon: '🥤', color: '#66bb6a' },
+  doubleCharacter: { label: 'Double Character', icon: '👥', color: '#7c4dff' },
+  doubleAmmo:      { label: 'Double Ammo',      icon: '💥', color: '#ffeb3b' },
+  extraLife:       { label: 'Extra Life',       icon: '❤️', color: '#66bb6a' },
 };
 
-export const POWERUP_TYPES: PowerUpType[] = ['shakeUp', 'freshCap', 'doubleCarb', 'flavorMix', 'extraLife'];
+export const POWERUP_TYPES: PowerUpType[] = ['doubleCharacter', 'doubleAmmo', 'extraLife'];
 
 export class PowerUp {
   pos: Vec2;

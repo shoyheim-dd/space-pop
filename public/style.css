@@ -30,6 +30,10 @@ body {
   border-radius: 8px;
 }
 
+/* Info modal/button removed */
+
+.hidden { display: none; }
+
 #ui-overlay {
   position: absolute;
   top: 8px;
@@ -73,7 +77,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: rgba(10, 10, 46, 0.92);
+  background: rgba(255, 105, 180, 0.92);
   gap: 20px;
   z-index: 10;
 }
@@ -81,15 +85,13 @@ body {
 #start-screen h1 {
   font-size: 64px;
   letter-spacing: 8px;
-  background: linear-gradient(135deg, #ff4444, #ff8800, #ffcc00, #00cc88, #0088ff);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #c2185b;
 }
 
 #start-screen p {
   font-size: 18px;
   opacity: 0.8;
+  color: #c2185b;
 }
 
 #bottle-select {
@@ -111,6 +113,7 @@ body {
   font-size: 12px;
   transition: all 0.2s;
   background: rgba(255, 255, 255, 0.05);
+  position: relative;
 }
 
 .bottle-option:hover,
@@ -122,6 +125,25 @@ body {
 
 .bottle-option .bottle-icon {
   font-size: 36px;
+  position: relative;
+  z-index: 2;
+}
+
+.bottle-option .bottle-name {
+  position: relative;
+  z-index: 2;
+}
+
+.team-badge {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  color: rgba(255,255,255,0.06);
+  z-index: 0;
+  pointer-events: none;
+  font-weight: 700;
 }
 
 #start-btn {
@@ -131,15 +153,17 @@ body {
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  background: linear-gradient(135deg, #ff4444, #ff8800);
-  color: #fff;
+  background: #ffffff;
+  color: #c2185b;
   letter-spacing: 2px;
   transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  border: 2px solid rgba(194,24,91,0.08);
 }
 
 #start-btn:hover {
   transform: scale(1.06);
-  box-shadow: 0 0 24px rgba(255, 68, 68, 0.5);
+  box-shadow: 0 8px 30px rgba(194,24,91,0.12);
 }
 
 #lives {

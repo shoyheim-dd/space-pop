@@ -8,13 +8,20 @@ const bottleSelect = document.getElementById('bottle-select')!;
 
 const game = new Game(canvas);
 
+// Ensure initial overlay state
+startScreen.style.display = 'flex';
+
 // Populate bottle selection
-const bottleTypes: BottleType[] = ['cola', 'fanta', 'sprite', 'rootBeer'];
+const bottleTypes: BottleType[] = ['cola', 'fanta', 'sprite', 'rootBeer', 'candyCup', 'chipBag', 'tree', 'bmwCar'];
 const bottleIcons: Record<BottleType, string> = {
   cola: '🥤',
   fanta: '🍊',
   sprite: '🍋',
   rootBeer: '🍺',
+  candyCup: '🍬',
+  chipBag: '🍟',
+  tree: '🌳',
+  bmwCar: '🚘',
 };
 
 for (const bt of bottleTypes) {
@@ -22,8 +29,9 @@ for (const bt of bottleTypes) {
   div.className = `bottle-option${bt === 'cola' ? ' selected' : ''}`;
   div.dataset.bottle = bt;
   div.innerHTML = `
+    <span class="team-badge">${BOTTLES[bt].name} Team</span>
     <span class="bottle-icon">${bottleIcons[bt]}</span>
-    <span>${BOTTLES[bt].name}</span>
+    <span class="bottle-name">${BOTTLES[bt].name} Team</span>
   `;
   div.addEventListener('click', () => {
     document.querySelectorAll('.bottle-option').forEach(el => el.classList.remove('selected'));
@@ -33,16 +41,17 @@ for (const bt of bottleTypes) {
   bottleSelect.appendChild(div);
 }
 
+// (Info modal removed)
+
 // Start button
 startBtn.addEventListener('click', () => {
   startScreen.style.display = 'none';
   game.start();
 });
 
-// Restart on click during game over
 canvas.addEventListener('click', () => {
   if (game.state === 'gameover') {
-    startScreen.style.display = 'flex';
+    startScreen.classList.remove('hidden');
   }
 });
 

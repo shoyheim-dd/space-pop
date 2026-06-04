@@ -1,3 +1,5 @@
+import type { ProjectileType } from '../entities/projectile';
+
 // ─── Game Constants ───
 
 export const CANVAS_WIDTH = 800;
@@ -16,7 +18,7 @@ export const COMBO_WINDOW = 1500; // ms between kills to maintain combo
 export const COMBO_THRESHOLDS = [3, 6, 10, 15]; // kills needed for ×2, ×3, ×4, ×5
 
 // Power-ups
-export const POWERUP_DROP_CHANCE = 0.10;
+export const POWERUP_DROP_CHANCE = 0.2;
 export const POWERUP_SHIELD_DURATION = 10000;
 export const POWERUP_DOUBLE_CARB_DURATION = 8000;
 export const POWERUP_FLAVOR_MIX_DURATION = 6000;
@@ -36,14 +38,14 @@ export const COLORS = {
   bubble: 'rgba(150, 220, 255, 0.3)',
 } as const;
 
-export type BottleType = 'cola' | 'fanta' | 'sprite' | 'rootBeer';
+export type BottleType = 'cola' | 'fanta' | 'sprite' | 'rootBeer' | 'candyCup' | 'chipBag' | 'tree' | 'bmwCar';
 
 export interface BottleConfig {
   name: string;
   color: string;
   speed: number;
   fireRate: number; // shots per second
-  projectileType: string;
+  projectileType: ProjectileType;
   specialName: string;
   specialCooldown: number; // ms
 }
@@ -54,7 +56,7 @@ export const BOTTLES: Record<BottleType, BottleConfig> = {
     color: COLORS.cola,
     speed: 300,
     fireRate: 5,
-    projectileType: 'cap',
+    projectileType: 'bubble',
     specialName: 'Mentos Drop',
     specialCooldown: 12000,
   },
@@ -63,7 +65,7 @@ export const BOTTLES: Record<BottleType, BottleConfig> = {
     color: COLORS.fanta,
     speed: 220,
     fireRate: 7,
-    projectileType: 'fizz',
+    projectileType: 'bubble',
     specialName: 'Citrus Burst',
     specialCooldown: 10000,
   },
@@ -81,8 +83,44 @@ export const BOTTLES: Record<BottleType, BottleConfig> = {
     color: COLORS.rootBeer,
     speed: 160,
     fireRate: 3,
-    projectileType: 'foam',
+    projectileType: 'bubble',
     specialName: 'Foam Tsunami',
     specialCooldown: 15000,
+  },
+  candyCup: {
+    name: 'Candy Cup',
+    color: '#ff77cc',
+    speed: 260,
+    fireRate: 4.5,
+    projectileType: 'candy',
+    specialName: 'Sugar Surge',
+    specialCooldown: 13000,
+  },
+  tree: {
+    name: 'Tree',
+    color: '#2f7b3d',
+    speed: 320,
+    fireRate: 5,
+    projectileType: 'water',
+    specialName: 'Nature Surge',
+    specialCooldown: 12000,
+  },
+  bmwCar: {
+    name: 'Batmobil',
+    color: '#111111',
+    speed: 380,
+    fireRate: 6,
+    projectileType: 'bensin',
+    specialName: 'Nitro Boost',
+    specialCooldown: 12000,
+  },
+  chipBag: {
+    name: 'Chip Bag',
+    color: '#d9ad7c',
+    speed: 240,
+    fireRate: 5.5,
+    projectileType: 'chip',
+    specialName: 'Crunch Blast',
+    specialCooldown: 13000,
   },
 };
