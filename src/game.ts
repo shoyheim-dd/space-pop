@@ -144,34 +144,66 @@ export class Game {
     const { x, y } = this.player.pos;
     const type = this.player.config.projectileType;
 
-    switch (type) {
-      case 'cap':
-        this.playerProjectiles.push(new Projectile(vec2(x, y - 30), vec2(0, -400), 'cap', true));
-        break;
-      case 'fizz':
-        // Spread shot
-        this.playerProjectiles.push(new Projectile(vec2(x, y - 30), vec2(-60, -380), 'fizz', true));
-        this.playerProjectiles.push(new Projectile(vec2(x, y - 30), vec2(0, -400), 'fizz', true));
-        this.playerProjectiles.push(new Projectile(vec2(x, y - 30), vec2(60, -380), 'fizz', true));
-        break;
-      case 'bubble': {
-        const proj = new Projectile(vec2(x, y - 30), vec2(0, -300), 'bubble', true);
-        // Find nearest enemy for homing
-        const alive = this.waves.enemies.filter(e => e.alive);
-        if (alive.length > 0) {
-          const nearest = alive.reduce((a, b) => {
-            const da = Math.abs(a.pos.x - x) + Math.abs(a.pos.y - y);
-            const db = Math.abs(b.pos.x - x) + Math.abs(b.pos.y - y);
-            return da < db ? a : b;
-          });
-          proj.target = nearest.pos;
+    const shootLane = (originX: number, originY: number, laneDirection = 0, speedScale = 1): void => {
+      switch (type) {
+        case 'cap':
+          this.playerProjectiles.push(
+            new Projectile(vec2(originX, originY - 30), vec2(laneDirection * 25, -400 * speedScale), 'cap', true)
+          );
+          break;
+        case 'fizz':
+          // Spread shot
+          this.playerProjectiles.push(
+            new Projectile(vec2(originX, originY - 30), vec2(-60 + laneDirection * 18, -380 * speedScale), 'fizz', true)
+          );
+          this.playerProjectiles.push(
+            new Projectile(vec2(originX, originY - 30), vec2(laneDirection * 22, -400 * speedScale), 'fizz', true)
+          );
+          this.playerProjectiles.push(
+            new Projectile(vec2(originX, originY - 30), vec2(60 + laneDirection * 18, -380 * speedScale), 'fizz', true)
+          );
+          break;
+        case 'bubble': {
+          const proj = new Projectile(
+            vec2(originX, originY - 30),
+            vec2(laneDirection * 20, -300 * speedScale),
+            'bubble',
+            true
+          );
+          // Find nearest enemy for homing
+          const alive = this.waves.enemies.filter(e => e.alive);
+          if (alive.length > 0) {
+            const nearest = alive.reduce((a, b) => {
+              const da = Math.abs(a.pos.x - originX) + Math.abs(a.pos.y - originY);
+              const db = Math.abs(b.pos.x - originX) + Math.abs(b.pos.y - originY);
+              return da < db ? a : b;
+            });
+            proj.target = nearest.pos;
+          }
+          this.playerProjectiles.push(proj);
+          break;
         }
-        this.playerProjectiles.push(proj);
-        break;
+        case 'foam':
+          this.playerProjectiles.push(
+            new Projectile(vec2(originX, originY - 30), vec2(laneDirection * 16, -250 * speedScale), 'foam', true)
+          );
+          break;
       }
-      case 'foam':
-        this.playerProjectiles.push(new Projectile(vec2(x, y - 30), vec2(0, -250), 'foam', true));
-        break;
+    };
+
+    // Main lane
+    shootLane(x, y, 0, 1);
+
+    // Sidewinder companion lanes: each stack adds one left+right wingman pair
+    if (this.player.sidewinderActive) {
+      const baseOffset = this.player.width + 16;
+      const ringSpacing = Math.max(10, this.player.width * 0.7);
+      for (let stack = 0; stack < this.player.sidewinderStacks; stack++) {
+        const sideOffset = baseOffset + stack * ringSpacing;
+        const speedScale = Math.max(0.72, 0.9 - stack * 0.05);
+        shootLane(x - sideOffset, y - 2, -1, speedScale);
+        shootLane(x + sideOffset, y - 2, 1, speedScale);
+      }
     }
   }
 
@@ -206,12 +238,25 @@ export class Game {
 
     // Power-up drop
     if (Math.random() < POWERUP_DROP_CHANCE) {
-      const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+      const sidewinderShare = 0.12;
+      let type: PowerUpType;
+      if (Math.random() < sidewinderShare) {
+        type = 'sidewinderBottle';
+      } else {
+        const nonSideTypes = POWERUP_TYPES.filter(t => t !== 'sidewinderBottle');
+        type = nonSideTypes[Math.floor(Math.random() * nonSideTypes.length)];
+      }
       this.powerups.push(new PowerUp(type, vec2(enemy.pos.x, enemy.pos.y)));
     }
   }
 
   private onPlayerHit(): void {
+    // Sidewinder persists until player gets hit (shield hit also counts)
+    if (!this.player.invincible && this.player.sidewinderStacks > 0) {
+      this.player.sidewinderStacks = 0;
+      this.particles.emitText(this.player.pos.x, this.player.pos.y - 30, 'SIDEWINDER LOST', '#ff8a65');
+    }
+
     this.waveDamageTaken = true;
     this.screenShake = 6;
     this.particles.emit(this.player.pos.x, this.player.pos.y, '#ff4444', 20, 150, 0.4);
@@ -253,6 +298,11 @@ export class Game {
         break;
       case 'extraLife':
         this.player.lives = Math.min(this.player.lives + 1, 5);
+        break;
+      case 'sidewinderBottle':
+        this.player.sidewinderStacks += 1;
+        this.particles.emitText(this.player.pos.x, this.player.pos.y - 36, `SIDEWINDER x${1 + this.player.sidewinderStacks * 2}`, '#ffab40');
+        this.particles.emit(this.player.pos.x, this.player.pos.y, '#ffab40', 18, 140, 0.45);
         break;
     }
   }

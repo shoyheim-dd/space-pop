@@ -17,12 +17,14 @@
 
 | Bottle   | Color   | Weapon            | Special Ability                      | Speed | Fire Rate |
 |----------|---------|-------------------|--------------------------------------|-------|-----------|
-| Cola     | #8B0000 | Bottle cap shots  | **Mentos Drop** – massive explosion  | ★★★   | ★★★       |
+| Cola     | #500a0a | Bottle cap shots  | **Mentos Drop** – massive explosion  | ★★★   | ★★★       |
 | Fanta    | #FF8C00 | Orange fizz spray | **Citrus Burst** – wide spread shot  | ★★    | ★★★★      |
 | Sprite   | #7CFC00 | Homing bubbles    | **Lemon Twist** – piercing beam      | ★★★★  | ★★        |
 | RootBeer | #8B4513 | Foam blobs (AoE)  | **Foam Tsunami** – screen-wide wave  | ★     | ★★        |
 
 Each bottle has **3 lives** (represented as caps in the HUD).
+
+Current implementation note: player bottles use a slimmer, Coca-Cola-inspired contour silhouette with a more pronounced waist/shoulder profile and 3D glass shading/highlights.
 
 ---
 
@@ -59,8 +61,13 @@ Each bottle has **3 lives** (represented as caps in the HUD).
 | Double Carbonation   | ⚡    | 2× fire rate                    | 8s       |
 | Flavor Mix           | 🌈    | Dual weapon (yours + random)    | 6s       |
 | Extra Life           | 🥤    | +1 life                         | Instant  |
+| Sidewinder Bottles   | 🍾    | Adds 2 mini side bottles per pickup; stacks additional wingman pairs and lanes | Until next hit |
 
-Power-ups drop randomly from defeated enemies (~10% chance).
+Power-ups drop randomly from defeated enemies (~10% chance). In the current implementation, Sidewinder Bottles are weighted rarer than other drops.
+Sidewinder behavior (current implementation):
+- Each pickup adds one stack (+2 side bottles / +2 firing lanes)
+- Stacks are persistent and do not expire over time
+- All Sidewinder stacks are cleared on the next player hit
 
 ---
 
@@ -100,11 +107,18 @@ Power-ups drop randomly from defeated enemies (~10% chance).
 | Shift / RClick  | Special ability (when charged) |
 | P / Esc         | Pause           |
 
+Readiness feedback: the player bottle gets a pulsing glow when special charge reaches 100%.
+
 ---
 
 ## Visual Style
-- **Background**: Deep space with drifting bubbles and faint stars
+- **Background**: Scrolling deep-space imagery (NASA public-domain assets stored locally), layered with drifting bubbles and starfield effects
 - **Color palette**: Neon-on-dark — bright fizzy colors against dark navy
+- **Player style**: Slimmer Coca-Cola-inspired contour bottles with 3D shading, gloss streaks, and reflective highlights
+- **Power-up icon style**: Sidewinder drop uses a custom tiny contour-bottle icon (with neck/cap/label), plus bottle icon feedback on pickup
+- **Enemy style updates**:
+    - Straw enemy uses cylindrical 3D shading/highlights to read as a tube
+    - Enemy projectiles are glowing mini-stars (instead of flat red dots)
 - **Particles**: Fizz spray, cap ricochets, foam splashes, bubble pops
 - **Screen shake** on explosions and boss hits
 

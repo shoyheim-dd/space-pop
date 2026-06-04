@@ -19,6 +19,7 @@ export class Player {
   shieldTimer = 0;
   doubleCarb = false;
   doubleCarbTimer = 0;
+  sidewinderStacks = 0;
 
   constructor(bottleType: BottleType) {
     this.bottleType = bottleType;
@@ -27,6 +28,10 @@ export class Player {
 
   get config() {
     return BOTTLES[this.bottleType];
+  }
+
+  get sidewinderActive(): boolean {
+    return this.sidewinderStacks > 0;
   }
 
   update(dt: number, moveX: number, moveY: number): void {
@@ -74,6 +79,7 @@ export class Player {
       this.doubleCarbTimer -= dt * 1000;
       if (this.doubleCarbTimer <= 0) this.doubleCarb = false;
     }
+
   }
 
   canShoot(): boolean {
@@ -117,7 +123,22 @@ export class Player {
     const bw = this.width;
     const bh = this.height;
 
-    // Bottle body — curved contour silhouette
+    // Special-ready glow (only when charge is full)
+    if (this.specialCharge >= 100) {
+      const pulse = (Math.sin(Date.now() * 0.01) + 1) / 2;
+      const glowRadius = 24 + pulse * 8;
+      const glowAlpha = 0.16 + pulse * 0.16;
+      const readyGlow = ctx.createRadialGradient(0, 0, Math.max(1, bw * 0.3), 0, 0, glowRadius);
+      readyGlow.addColorStop(0, `rgba(255, 235, 59, ${glowAlpha})`);
+      readyGlow.addColorStop(0.55, `rgba(255, 193, 7, ${glowAlpha * 0.7})`);
+      readyGlow.addColorStop(1, 'rgba(255, 193, 7, 0)');
+      ctx.fillStyle = readyGlow;
+      ctx.beginPath();
+      ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Bottle body — classic contour silhouette (pronounced hip/waist/shoulder)
     const bodyGrad = ctx.createLinearGradient(-bw * 0.5, -bh * 0.55, bw * 0.5, bh * 0.5);
     bodyGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
     bodyGrad.addColorStop(0.16, color);
@@ -125,39 +146,32 @@ export class Player {
     bodyGrad.addColorStop(1, 'rgba(0,0,0,0.18)');
     ctx.fillStyle = bodyGrad;
     ctx.beginPath();
-    // Start at bottom-left of base
-    ctx.moveTo(-bw * 0.38, bh * 0.5);
-    // Bottom curve (base)
-    ctx.quadraticCurveTo(-bw * 0.4, bh * 0.44, -bw * 0.36, bh * 0.38);
-    // Lower body curve outward (wide hip)
-    ctx.quadraticCurveTo(-bw * 0.48, bh * 0.15, -bw * 0.46, 0);
-    // Waist pinch inward
-    ctx.quadraticCurveTo(-bw * 0.38, -bh * 0.12, -bw * 0.28, -bh * 0.2);
-    // Upper body / shoulder
-    ctx.quadraticCurveTo(-bw * 0.34, -bh * 0.32, -bw * 0.22, -bh * 0.38);
-    // Neck taper
-    ctx.quadraticCurveTo(-bw * 0.16, -bh * 0.42, -bw * 0.12, -bh * 0.48);
-    // Neck straight up
-    ctx.lineTo(-bw * 0.1, -bh * 0.56);
-    // Lip / rim
-    ctx.lineTo(-bw * 0.14, -bh * 0.58);
-    ctx.lineTo(-bw * 0.14, -bh * 0.62);
-    // Across cap top
-    ctx.lineTo(bw * 0.14, -bh * 0.62);
-    ctx.lineTo(bw * 0.14, -bh * 0.58);
-    ctx.lineTo(bw * 0.1, -bh * 0.56);
+    // Left base / heel
+    ctx.moveTo(-bw * 0.34, bh * 0.5);
+    ctx.quadraticCurveTo(-bw * 0.46, bh * 0.44, -bw * 0.42, bh * 0.31);
+    // Lower hip bulge
+    ctx.quadraticCurveTo(-bw * 0.49, bh * 0.18, -bw * 0.47, bh * 0.04);
+    // Tight waist pinch
+    ctx.quadraticCurveTo(-bw * 0.44, -bh * 0.08, -bw * 0.29, -bh * 0.17);
+    // Upper shoulder swell
+    ctx.quadraticCurveTo(-bw * 0.39, -bh * 0.29, -bw * 0.24, -bh * 0.39);
+    // Neck taper into lip
+    ctx.quadraticCurveTo(-bw * 0.17, -bh * 0.45, -bw * 0.11, -bh * 0.54);
+    // Lip + cap crown
+    ctx.lineTo(-bw * 0.15, -bh * 0.58);
+    ctx.lineTo(-bw * 0.15, -bh * 0.62);
+    ctx.lineTo(bw * 0.15, -bh * 0.62);
+    ctx.lineTo(bw * 0.15, -bh * 0.58);
     // Right neck
-    ctx.lineTo(bw * 0.12, -bh * 0.48);
-    ctx.quadraticCurveTo(bw * 0.16, -bh * 0.42, bw * 0.22, -bh * 0.38);
-    // Right shoulder
-    ctx.quadraticCurveTo(bw * 0.34, -bh * 0.32, bw * 0.28, -bh * 0.2);
-    // Right waist
-    ctx.quadraticCurveTo(bw * 0.38, -bh * 0.12, bw * 0.46, 0);
-    // Right hip
-    ctx.quadraticCurveTo(bw * 0.48, bh * 0.15, bw * 0.36, bh * 0.38);
-    // Right base
-    ctx.quadraticCurveTo(bw * 0.4, bh * 0.44, bw * 0.38, bh * 0.5);
-    // Bottom
+    ctx.lineTo(bw * 0.11, -bh * 0.54);
+    ctx.quadraticCurveTo(bw * 0.17, -bh * 0.45, bw * 0.24, -bh * 0.39);
+    // Right shoulder and waist
+    ctx.quadraticCurveTo(bw * 0.39, -bh * 0.29, bw * 0.29, -bh * 0.17);
+    ctx.quadraticCurveTo(bw * 0.44, -bh * 0.08, bw * 0.47, bh * 0.04);
+    // Right hip and heel
+    ctx.quadraticCurveTo(bw * 0.49, bh * 0.18, bw * 0.42, bh * 0.31);
+    ctx.quadraticCurveTo(bw * 0.46, bh * 0.44, bw * 0.34, bh * 0.5);
+    // Bottom arc
     ctx.closePath();
     ctx.fill();
 
@@ -231,6 +245,58 @@ export class Player {
     capGrad.addColorStop(1, '#888');
     ctx.fillStyle = capGrad;
     ctx.fillRect(-bw * 0.14, -bh * 0.62, bw * 0.28, bh * 0.05);
+
+    // Sidewinder companion bottles
+    if (this.sidewinderActive) {
+      const pulse = (Math.sin(Date.now() * 0.014) + 1) / 2;
+      const baseOffset = bw + 16;
+      const ringSpacing = Math.max(9, bw * 0.7);
+      const miniW = Math.max(8, bw * 0.6);
+      const miniH = Math.max(18, bh * 0.62);
+      const thrusterLen = 3 + pulse * 3;
+
+      for (let stack = 0; stack < this.sidewinderStacks; stack++) {
+        const ringOffset = baseOffset + stack * ringSpacing;
+
+        for (const dir of [-1, 1] as const) {
+          const ox = dir * ringOffset;
+
+          // Small glow around companion
+          const glow = ctx.createRadialGradient(ox, 0, 1, ox, 0, 14 + pulse * 4);
+          glow.addColorStop(0, 'rgba(255, 171, 64, 0.28)');
+          glow.addColorStop(1, 'rgba(255, 171, 64, 0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(ox, 0, 14 + pulse * 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Mini bottle body
+          const miniGrad = ctx.createLinearGradient(ox - miniW * 0.5, -miniH * 0.5, ox + miniW * 0.5, miniH * 0.5);
+          miniGrad.addColorStop(0, 'rgba(255,255,255,0.2)');
+          miniGrad.addColorStop(0.2, color);
+          miniGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
+          ctx.fillStyle = miniGrad;
+          ctx.beginPath();
+          ctx.roundRect(ox - miniW * 0.45, -miniH * 0.38, miniW * 0.9, miniH * 0.76, 3);
+          ctx.fill();
+
+          // Mini neck + cap
+          ctx.fillStyle = color;
+          ctx.fillRect(ox - miniW * 0.12, -miniH * 0.52, miniW * 0.24, miniH * 0.15);
+          ctx.fillStyle = '#cfcfcf';
+          ctx.fillRect(ox - miniW * 0.2, -miniH * 0.58, miniW * 0.4, miniH * 0.08);
+
+          // Thruster flame
+          ctx.fillStyle = `rgba(255, 220, 120, ${0.55 + pulse * 0.35})`;
+          ctx.beginPath();
+          ctx.moveTo(ox - miniW * 0.12, miniH * 0.4);
+          ctx.lineTo(ox + miniW * 0.12, miniH * 0.4);
+          ctx.lineTo(ox, miniH * 0.4 + thrusterLen);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    }
 
     // Shield glow
     if (this.shieldActive) {
