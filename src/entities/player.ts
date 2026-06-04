@@ -4,7 +4,7 @@ import { clamp } from '../utils/math';
 
 export class Player {
   pos: Vec2;
-  width = 26;
+  width = 24;
   height = 48;
   bottleType: BottleType;
   lives = 3;
@@ -118,7 +118,12 @@ export class Player {
     const bh = this.height;
 
     // Bottle body — curved contour silhouette
-    ctx.fillStyle = color;
+    const bodyGrad = ctx.createLinearGradient(-bw * 0.5, -bh * 0.55, bw * 0.5, bh * 0.5);
+    bodyGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
+    bodyGrad.addColorStop(0.16, color);
+    bodyGrad.addColorStop(0.72, color);
+    bodyGrad.addColorStop(1, 'rgba(0,0,0,0.28)');
+    ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     // Start at bottom-left of base
     ctx.moveTo(-bw * 0.38, bh * 0.5);
@@ -156,6 +161,18 @@ export class Player {
     ctx.closePath();
     ctx.fill();
 
+    // Right-side glass shading for a rounded 3D feel
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+    ctx.beginPath();
+    ctx.moveTo(bw * 0.14, -bh * 0.44);
+    ctx.quadraticCurveTo(bw * 0.36, -bh * 0.2, bw * 0.4, bh * 0.1);
+    ctx.quadraticCurveTo(bw * 0.42, bh * 0.28, bw * 0.3, bh * 0.42);
+    ctx.lineTo(bw * 0.2, bh * 0.42);
+    ctx.quadraticCurveTo(bw * 0.28, bh * 0.24, bw * 0.26, bh * 0.1);
+    ctx.quadraticCurveTo(bw * 0.24, -bh * 0.18, bw * 0.08, -bh * 0.38);
+    ctx.closePath();
+    ctx.fill();
+
     // Glass highlight (left edge reflection)
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.beginPath();
@@ -165,6 +182,21 @@ export class Player {
     ctx.lineTo(-bw * 0.14, -bh * 0.2);
     ctx.quadraticCurveTo(-bw * 0.22, -bh * 0.1, -bw * 0.28, bh * 0.0);
     ctx.quadraticCurveTo(-bw * 0.3, bh * 0.15, -bw * 0.24, bh * 0.32);
+    ctx.closePath();
+    ctx.fill();
+
+    // Front glossy streak
+    const gloss = ctx.createLinearGradient(-bw * 0.06, -bh * 0.48, bw * 0.1, bh * 0.2);
+    gloss.addColorStop(0, 'rgba(255,255,255,0.35)');
+    gloss.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gloss;
+    ctx.beginPath();
+    ctx.moveTo(-bw * 0.04, -bh * 0.45);
+    ctx.quadraticCurveTo(bw * 0.02, -bh * 0.34, bw * 0.04, -bh * 0.18);
+    ctx.quadraticCurveTo(bw * 0.06, 0, bw * 0.04, bh * 0.18);
+    ctx.quadraticCurveTo(0, bh * 0.24, -bw * 0.06, bh * 0.16);
+    ctx.quadraticCurveTo(-bw * 0.02, 0, -bw * 0.02, -bh * 0.18);
+    ctx.quadraticCurveTo(-bw * 0.02, -bh * 0.32, -bw * 0.04, -bh * 0.45);
     ctx.closePath();
     ctx.fill();
 
